@@ -1,0 +1,14 @@
+{
+  "name": "backend_final",
+  "version": "1.0.0",
+  "description": "Abackend project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "JS"
+  ],
+  "author": "Alex",
+  "license": "ISC"
+}
