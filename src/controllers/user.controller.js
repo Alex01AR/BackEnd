@@ -15,28 +15,38 @@ const registerUser = asyncHandler(async (req,res) => {
     //check  for user creation 
     //return res || error 
 
-     const {fullname , email, username , password }= req.body
-     console.log("email", email);
+     const {fullName , email, username , password }= req.body
+    //  console.log("email", email);
+    //  console.log("fullname", fullName);
+    //  console.log("password", password);
+    //  console.log("username", username);
+     
+
 
 // if(fullname === ""){
 // throw new ApiError(400,"Fullnmae is required")
 // }
 
 if(
-    [fullname,email,username , password].some(
+    [fullName,email,username , password].some(
         (fields) => fields?.trim() === "")){
             throw new ApiError(400,"Fullnmae is required")
         }
 
-        User.findOne({
+       const existedUser=await  User.findOne({
             $or : [{username},{email}]
         })
         if(existedUser){
             throw new ApiError(400,"user with username and email is already existed")
         }
-        const avatarLocalPath  =res.files?.avatar[0]?.path
+        const avatarLocalPath  = req.files?.avatar[0]?.path;
 
-        const coverImageLocalPath  =res.files?.coverImage[0]?.path
+        // const coverImageLocalPath  =req.files?.coverImage[0]?.path
+
+        let coverImageLocalPath;
+        if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+            coverImageLocalPath = req.files.coverImage[0].path
+        }
 
         if(!avatarLocalPath){
             throw new ApiError(400,"Avatar file is required ")
@@ -51,7 +61,7 @@ if(
 
         }
  const user =await User.create ({
-    fullname,
+    fullName,
     avatar : avatar.url,
     coverImage : coverImage?.url || "",
     email,
