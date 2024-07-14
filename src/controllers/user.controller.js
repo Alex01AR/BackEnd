@@ -306,6 +306,8 @@ const user = await User.findByIdAndUpdate(
     },
     {new:true}
 ).select("-password")
+
+//delete old image so that make utility
 return res
 .status(200)
 .json(
@@ -342,6 +344,74 @@ const updateUsercoverImage = asyncHandler(async(req,res) => {
 )
     })
 
+
+    const getUserchannelProfile = asyncHandler(async(req,res) =>{
+        const {username} = req.params
+        
+        if(!username?.trim()){
+            throw new ApiError(400,"username is missing ")
+        }
+const channel = await User.addregate([
+    {
+        $match:{
+            username : username?.tolowerCase()
+        },
+        
+    },
+    {
+        $lookup:{
+            from :"subscriptions",
+            localField: "_id",
+            foreignField:"channels",
+            as : "Subscribers"
+        }
+    },
+    {
+         $lookup:{
+            from :"Subscriptions",
+            localField: "_id",
+            foreignField:"Subscriber",
+            as : "subscribedTo"
+        }
+    },
+    {
+        $addFields:{
+            subscribercount:{
+                $size:"$subscribers"
+            },
+            channelsSubscribedToCount:{
+                $size:"%subscribedTo"
+            },
+            isSubscribed:{
+                $cond:{
+                    if:{
+                        $in:[req.user?._id,"$subscribers.subscriber"]},
+                        then:true,
+                        else:false
+                }
+            }
+        }
+    },{
+        $project:{
+            fullName:1,
+            username:1,
+            subscribercount:1,
+            channelsSubscribedToCount:1,
+            isSubscribed:1,
+            avatar:1,
+            coverImage:1,
+            email:1,
+            
+
+
+
+
+        }
+    }
+])
+
+    })
+
 export {
     registerUser,
 loginUser,
@@ -351,5 +421,6 @@ getCurrentUser,
 changeCurrentUserPassword,
 updateAccountDetail,
 updateUserAvatar,
-updateUsercoverImage
+updateUsercoverImage,
+getUserchannelProfile
 }
